@@ -3,6 +3,10 @@ package com.taskapp.logic;
 import com.taskapp.dataaccess.LogDataAccess;
 import com.taskapp.dataaccess.TaskDataAccess;
 import com.taskapp.dataaccess.UserDataAccess;
+import com.taskapp.model.Task;
+import com.taskapp.model.User;
+
+import java.util.List;
 
 public class TaskLogic {
     private final TaskDataAccess taskDataAccess;
@@ -34,8 +38,35 @@ public class TaskLogic {
      * @see com.taskapp.dataaccess.TaskDataAccess#findAll()
      * @param loginUser ログインユーザー
      */
-    // public void showAll(User loginUser) {
-    // }
+    public void showAll(User loginUser) {
+        //データの一覧を取得
+        List<Task> tasks = taskDataAccess.findAll();
+
+        // 取得したデータを表示する
+        tasks.forEach(task -> {
+            String status = null;
+            if (task.getStatus() == 0) {
+                status = "未着手";
+            } else if (task.getStatus() == 1) {
+                status = "着手中";
+            } else if (task.getStatus() == 2) {
+                status = "完了";
+            }
+
+            //担当者情報を取得する
+            User repUser = task.getRepUser();
+            String manager = null;
+            
+            if (repUser.getCode() == loginUser.getCode()) {
+                manager = "あなた";
+            } else {
+                manager = repUser.getName();
+            }
+            //一覧を表示
+            System.out.println(task.getCode() + ". タスク名 : " + task.getName()
+                + ", 担当者名 : " + manager + "が担当しています, ステータス : " + status);
+        });
+    }
 
     /**
      * 新しいタスクを保存します。

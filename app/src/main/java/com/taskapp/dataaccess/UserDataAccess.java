@@ -1,5 +1,11 @@
 package com.taskapp.dataaccess;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+import com.taskapp.model.User;
+
 public class UserDataAccess {
     private final String filePath;
 
@@ -21,26 +27,64 @@ public class UserDataAccess {
      * @param password パスワード
      * @return 見つかったユーザー
      */
-    // public User findByEmailAndPassword(String email, String password) {
-    //     try () {
+    public User findByEmailAndPassword(String email, String password) {
+        User user = null;
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            //タイトルの行は飛ばす
+            reader.readLine();
+            //一行ずつ読み取り、カンマで分けて配列に格納
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
 
-    //     } catch (IOException e) {
-    //         e.printStackTrace();;
-    //     }
-    //     return null;
-    // }
+                // メールアドレス、パスワードが一致しなかったらスキップする
+                if (!(values[2].equals(email) && values[3].equals(password))) continue;
+                
+                // メールアドレス、パスワードが一致したらそのデータをUserオブジェクトにマッピング
+                int code = Integer.parseInt(values[0]);
+                String name = values[1];
+                String userEmail = values[2];
+                String userPassword = values[3];
+                user = new User(code, name, userEmail, userPassword);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();;
+        }
+        return user;
+    }
 
     /**
      * コードを基にユーザーデータを取得します。
      * @param code 取得するユーザーのコード
      * @return 見つかったユーザー
      */
-    // public User findByCode(int code) {
-    //     try () {
+    public User findByCode(int code) {
+        User user = null;
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
 
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //     }
-    //     return null;
-    // }
+            //タイトル行を読み飛ばす
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                int userCode = Integer.parseInt(values[0]);
+
+                if (code != userCode) {
+                    continue;
+                }
+
+                String name = values[1];
+                String userEmail = values[2];
+                String userPassword = values[3];
+
+                //Userオブジェクトにマッピング
+                user = new User(userCode, name, userEmail, userPassword);
+                break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
 }
